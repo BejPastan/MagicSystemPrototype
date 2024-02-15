@@ -53,4 +53,12 @@ public struct StrandData
         hairTransforms[id].GetComponent<Renderer>().material.color = color;
         hairTransforms[id].SetParent(hairTransforms[id].parent.parent);
     }
+
+    public void RemoveStrand()
+    {
+        for (int i = 0; i < hairTransforms.Length; i++)
+        {
+            GameObject.Destroy(hairTransforms[i].gameObject);
+        }
+    }
 }
