@@ -20,7 +20,7 @@ public struct StrandData
         this.hairPrefab = hairPrefab;
         this.color = color;
         length = 0;
-        hairTransforms = new Transform[0];
+        hairTransforms = new Transform[1];
         hairTransforms[length] = root;
     }
 
@@ -35,11 +35,11 @@ public struct StrandData
         Array.Resize(ref hairTransforms, length + lenghtChange);
         while (lenghtChange>0)
         {
+            length++;
             CreateHairPart(length);
             Debug.Log("Lenght Change: " + lenghtChange);
             //lenghtChange set closer to 0
             lenghtChange--;
-            length++;
         }
     }
 
@@ -51,14 +51,17 @@ public struct StrandData
         float scale = hairTransforms[id].localScale.x;
         hairTransforms[id].Translate(Vector3.forward * scale);
         hairTransforms[id].GetComponent<Renderer>().material.color = color;
-        hairTransforms[id].SetParent(hairTransforms[id].parent.parent);
+        hairTransforms[id].SetParent(hairTransforms[0]);
+        hairTransforms[id].GetComponent<Joint>().connectedBody = hairTransforms[id - 1].GetComponent<Rigidbody>();
+        hairTransforms[id].transform.localScale = Vector3.one*scale;
     }
 
     public void RemoveStrand()
     {
-        for (int i = 0; i < hairTransforms.Length; i++)
+        Debug.LogWarning("RemoveingStrand");
+        for (int i = 1; i < hairTransforms.Length; i++)
         {
-            GameObject.Destroy(hairTransforms[i].gameObject);
+            GameObject.DestroyImmediate(hairTransforms[i].gameObject);
         }
     }
 }
