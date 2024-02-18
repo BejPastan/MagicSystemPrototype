@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using Unity.VisualScripting;
 
 public class HairCreator : MonoBehaviour
 {
@@ -41,7 +42,10 @@ public class HairCreator : MonoBehaviour
         hairRoots[id] = new GameObject("HairRoot").transform;
         hairRoots[id].SetParent(transform);
         hairRoots[id].localPosition = new Vector3(0, 1, 0);
-        
+        hairRoots[id].AddComponent<Rigidbody>().useGravity = false;
+        hairRoots[id].GetComponent<Rigidbody>().isKinematic = true;
+
+
         strandData[id] = new StrandData(hairPrefab, Color.black, hairRoots[id]);
 
         
@@ -61,9 +65,9 @@ public class HairCreator : MonoBehaviour
     {
         UnityEditor.EditorApplication.delayCall += () =>
         {
-            strandData[strandData.Length - 1].RemoveStrand();
+            strandData[^1].RemoveStrand();
             Array.Resize(ref strandData, strandData.Length - 1);
-            DestroyImmediate(hairRoots[hairRoots.Length-1].gameObject);
+            DestroyImmediate(hairRoots[^1].gameObject);
             Array.Resize(ref hairRoots, hairRoots.Length - 1);
         };
     }
@@ -85,7 +89,7 @@ public class HairCreator : MonoBehaviour
             return;
         }
         float rotation = 360 / strandCount;
-        rotation = rotation * Mathf.Deg2Rad;
+        rotation *= Mathf.Deg2Rad;
         Debug.Log("Rotation: " + rotation);
 
         for(int i = 0; i < strandCount; i++)

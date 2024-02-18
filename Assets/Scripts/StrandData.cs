@@ -1,16 +1,17 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 [Serializable]
 public struct StrandData
 {
-    private GameObject hairPrefab;
-    public int length;
-    private Color color;
+    private readonly GameObject hairPrefab;
+    private int length;
     private Transform[] hairTransforms;
+    private Color color;
 
     //length getter
-    public int Length
+    public readonly int Length
     {
         get { return length; }
     }
@@ -18,10 +19,10 @@ public struct StrandData
     public StrandData(GameObject hairPrefab, Color color, Transform root)
     {
         this.hairPrefab = hairPrefab;
+        length = 1;
+        hairTransforms = new Transform[length];
+        hairTransforms[0] = root;
         this.color = color;
-        length = 0;
-        hairTransforms = new Transform[1];
-        hairTransforms[length] = root;
     }
 
     public void ChangeLenght(int lenghtChange)
@@ -33,32 +34,31 @@ public struct StrandData
             length--;
         }
         Array.Resize(ref hairTransforms, length + lenghtChange);
+        Debug.Log(length + " hairTransforms.Length");
         while (lenghtChange>0)
         {
             length++;
-            CreateHairPart(length);
-            Debug.Log("Lenght Change: " + lenghtChange);
+            CreateHairPart(length-1);
             //lenghtChange set closer to 0
             lenghtChange--;
         }
     }
 
-    private void CreateHairPart(int id)
+    private readonly void CreateHairPart(int id)
     {
+        Debug.Log(id + " hair part ID");
         hairTransforms[id] = GameObject.Instantiate(hairPrefab, hairTransforms[id - 1]).transform;
-        hairTransforms[id].localPosition = new Vector3(0, 0, 0);
-        hairTransforms[id].localRotation = new Quaternion(0, 0, 0, 0);
+        hairTransforms[id].SetLocalPositionAndRotation(new Vector3(0, 0, 0), new Quaternion(0, 0, 0, 0));
         float scale = hairTransforms[id].localScale.x;
-        hairTransforms[id].Translate(Vector3.forward * scale);
+        hairTransforms[id].Translate(Vector3.up * scale);
         hairTransforms[id].GetComponent<Renderer>().material.color = color;
         hairTransforms[id].SetParent(hairTransforms[0]);
         hairTransforms[id].GetComponent<Joint>().connectedBody = hairTransforms[id - 1].GetComponent<Rigidbody>();
         hairTransforms[id].transform.localScale = Vector3.one*scale;
     }
 
-    public void RemoveStrand()
+    public readonly void RemoveStrand()
     {
-        Debug.LogWarning("RemoveingStrand");
         for (int i = 1; i < hairTransforms.Length; i++)
         {
             GameObject.DestroyImmediate(hairTransforms[i].gameObject);
