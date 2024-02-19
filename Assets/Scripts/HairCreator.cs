@@ -14,6 +14,8 @@ public class HairCreator : MonoBehaviour
     Transform[] hairRoots;
     [SerializeField]
     GameObject hairPrefab;
+    [SerializeField]
+    float prefabRadius;
 
     private void OnValidate()
     {
@@ -41,7 +43,7 @@ public class HairCreator : MonoBehaviour
         Array.Resize(ref hairRoots, id+1);
         hairRoots[id] = new GameObject("HairRoot").transform;
         hairRoots[id].SetParent(transform);
-        hairRoots[id].localPosition = new Vector3(0, 1, 0);
+        hairRoots[id].localPosition = Vector3.zero;
         hairRoots[id].AddComponent<Rigidbody>().useGravity = false;
         hairRoots[id].GetComponent<Rigidbody>().isKinematic = true;
 
@@ -83,18 +85,25 @@ public class HairCreator : MonoBehaviour
 
     private void RecalcRootPos()
     {
+        //get radius of prefab
+        prefabRadius = hairPrefab.GetComponent<Renderer>().bounds.extents.x;
+        
         Debug.Log("RecalcRootPos");
         if(strandCount == 0)
         {
             return;
         }
-        float rotation = 360 / strandCount;
-        rotation *= Mathf.Deg2Rad;
+        float rotation = 300 / strandCount;
         Debug.Log("Rotation: " + rotation);
 
         for(int i = 0; i < strandCount; i++)
         {
-            hairRoots[i].rotation = new Quaternion(0, rotation * i, 0, 0);
+            //get position of HairRoot
+            Vector3 rootPos = -hairRoots[i].localPosition;
+            //calculate new position of HairRoot based on rotation and prefab radius
+            rootPos.x += Mathf.Sin(((rotation * i) + 30) * Mathf.Deg2Rad) * prefabRadius*2;
+            rootPos.z += Mathf.Cos(((rotation * i) + 30) * Mathf.Deg2Rad) * prefabRadius*2;
+            strandData[i].ChangePosition(rootPos);
         }
     }
 }

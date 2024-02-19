@@ -52,7 +52,7 @@ public struct StrandData
         float scale = hairTransforms[id].localScale.x;
         hairTransforms[id].Translate(Vector3.up * scale);
         hairTransforms[id].GetComponent<Renderer>().material.color = color;
-        hairTransforms[id].SetParent(hairTransforms[0]);
+        hairTransforms[id].SetParent(hairTransforms[0].parent);
         hairTransforms[id].GetComponent<Joint>().connectedBody = hairTransforms[id - 1].GetComponent<Rigidbody>();
         hairTransforms[id].transform.localScale = Vector3.one*scale;
     }
@@ -62,6 +62,24 @@ public struct StrandData
         for (int i = 1; i < hairTransforms.Length; i++)
         {
             GameObject.DestroyImmediate(hairTransforms[i].gameObject);
+        }
+    }
+
+    //move strand to new position
+    public void ChangePosition(Vector3 positionChange)
+    {
+        foreach (Transform hairTransform in hairTransforms)
+        {
+            hairTransform.position += positionChange;
+        }
+    }
+
+    //changeRotation of strand around Y axis
+    public void ChangeRotation(float rotationChange)
+    {
+        foreach (Transform hairTransform in hairTransforms)
+        {
+            hairTransform.Rotate(Vector3.up, rotationChange);
         }
     }
 }
